@@ -2,6 +2,7 @@
 
 %{
   /* Put header files here or function declarations like below */
+  #define SWIG_FILE_WITH_INIT
   #include <sstream>
   #include <complex>
   #include <uni10/datatype/Qnum.h>
@@ -48,6 +49,11 @@ namespace std{
   %template(Qnum2Matrix) std::map<uni10::Qnum, uni10::Matrix>;
   /*%template(Swap_arr)  std::vector<uni10::_Swap>;*/
 }
+%init %{
+    import_array();
+%}
+
+%apply (double* ARGOUT_ARRAY1, int DIM1) {(double* out_array, int elem_num)}
 %feature("autodoc");
 
 %exception {
@@ -667,6 +673,7 @@ class UniTensor{
         std::complex<double> at(cflag tp, const std::vector<int>& idxs)const;
         std::complex<double> at(cflag tp, const std::vector<size_t>& idxs)const;
         double* getElem();
+        void exportElem(double* out_array, int elem_num);
         /*Complex operator()(size_t idx) const;*/
 
     %extend {

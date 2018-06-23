@@ -798,6 +798,7 @@ namespace uni10 {
         void addGate(rflag tp, const std::vector<_Swap>& swaps);
 
         Real* getElem(rflag tp);
+        void exportElem(double *out_array, int elem_num, rflag tp);
 
 
         Matrix getRawElem(rflag tp)const;
@@ -880,6 +881,7 @@ namespace uni10 {
 
 
         Complex* getElem(cflag tp);
+        void exportElem(Complex *out_array, int elem_num, cflag tp);
 
         Matrix getRawElem(cflag tp)const;
         Complex trace(cflag tp)const;
@@ -906,6 +908,7 @@ namespace uni10 {
         Complex at(cflag tp, const std::vector<int>& idxs)const;
         Complex at(cflag tp, const std::vector<size_t>& idxs)const;
         Real* getElem();
+        void exportElem(double *out_array, int elem_num);
 
         /// @brief Access individual element
         ///

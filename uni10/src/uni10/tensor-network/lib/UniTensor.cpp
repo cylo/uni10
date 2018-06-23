@@ -41,7 +41,6 @@
 
 
 
-
 namespace uni10{
 
 int64_t UniTensor::ELEMNUM = 0;
@@ -1496,6 +1495,27 @@ Real* UniTensor::getElem(){
     propogate_exception(e, "In function UniTensor::getElem():");
   }
   return elem;
+}
+
+void UniTensor::exportElem(double *out_array, int elem_num){
+  /// PYTHON ONLY!!!
+  try{
+    if(out_array == NULL){
+      std::ostringstream err;
+      err<<"NULL out_array. Should allocate 'out_array' with size 'elem_num'.";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    if(typeID() == 2){
+      std::ostringstream err;
+      err<<"This Tensor is COMPLEX. Please use UniTensor::exportElem(Complex *out_array, int elem_num, uni10::cflag ) instead";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::exportElem(double *out_array, int elem_num):");
+  }
+  elem_num = std::min(elem_num, (int)m_elemNum);
+  memcpy(out_array, elem, sizeof(double) * elem_num);
 }
 
 /**************** Private Functions ***********************/

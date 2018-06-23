@@ -84,7 +84,7 @@ endif()
 # MKL is composed of four layers: Interface, Threading, Computational and RTL
 
 if(MKL_SDL)
-    find_library(MKL_LIBRARY mkl_rt PATHS ${MKL_LIB_PATH})
+    find_library(MKL_LIBRARY mkl_rt NO_DEFAULT_PATH PATHS ${MKL_LIB_PATH})
     set(MKL_MINIMAL_LIBRARY ${MKL_LIBRARY})
 else()
     ######################### Interface layer #######################
@@ -143,6 +143,7 @@ else()
     set(MKL_MINIMAL_LIBRARY ${MKL_INTERFACE_LIBRARY} ${MKL_THREADING_LIBRARY} ${MKL_CORE_LIBRARY} ${MKL_RTL_LIBRARY})
 endif()
 #message("MKL_LIBRARY: ${MKL_LIBRARY}")
+#message("MKL_MINIMAL_LIBRARY: ${MKL_MINIMAL_LIBRARY}")
 set(CMAKE_FIND_LIBRARY_SUFFIXES ${_MKL_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
 
 find_package_handle_standard_args(MKL DEFAULT_MSG MKL_INCLUDE_DIR MKL_LIBRARY MKL_MINIMAL_LIBRARY)

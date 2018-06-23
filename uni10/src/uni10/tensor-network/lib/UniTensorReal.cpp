@@ -330,6 +330,28 @@ Real* UniTensor::getElem(rflag tp){
   return elem;
 }
 
+void UniTensor::exportElem(double *out_array, int elem_num, rflag tp){
+  /// PYTHON ONLY!!!
+  try{
+    throwTypeError(tp);
+    if(out_array == NULL){
+      std::ostringstream err;
+      err<<"NULL out_array. Should allocate 'out_array' with size 'elem_num'.";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    if(typeID() == 2){
+      std::ostringstream err;
+      err<<"This Tensor is COMPLEX. Please use UniTensor::exportElem(Complex *out_array, int elem_num, uni10::cflag ) instead";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::exportElem(double *out_array, int elem_num, uni10::rflag ):");
+  }
+  elem_num = std::min(elem_num, (int)m_elemNum);
+  memcpy(out_array, elem, sizeof(double) * elem_num);
+}
+
 std::map<Qnum, Matrix> UniTensor::getBlocks(rflag tp)const{
   std::map<Qnum, Matrix> mats;
   try{
