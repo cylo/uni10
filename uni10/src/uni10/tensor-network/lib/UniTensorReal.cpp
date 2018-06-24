@@ -330,7 +330,7 @@ Real* UniTensor::getElem(rflag tp){
   return elem;
 }
 
-void UniTensor::exportElem(double *out_array, int elem_num, rflag tp){
+void UniTensor::exportElem(rflag tp, double *out_array, int elem_num){
   /// PYTHON ONLY!!!
   try{
     throwTypeError(tp);
@@ -341,15 +341,22 @@ void UniTensor::exportElem(double *out_array, int elem_num, rflag tp){
     }
     if(typeID() == 2){
       std::ostringstream err;
-      err<<"This Tensor is COMPLEX. Please use UniTensor::exportElem(Complex *out_array, int elem_num, uni10::cflag ) instead";
+      err<<"This Tensor is COMPLEX. Please use UniTensor::exportElem(uni10::cflag, Complex *out_array, int elem_num) instead";
       throw std::runtime_error(exception_msg(err.str()));
     }
   }
   catch(const std::exception& e){
-    propogate_exception(e, "In function UniTensor::exportElem(double *out_array, int elem_num, uni10::rflag ):");
+    propogate_exception(e, "In function UniTensor::exportElem(uni10::rflag, double *out_array, int elem_num):");
   }
   elem_num = std::min(elem_num, (int)m_elemNum);
   memcpy(out_array, elem, sizeof(double) * elem_num);
+}
+
+void UniTensor::exportElemR(double *out_array, int elem_num){
+  /// PYTHON ONLY!!!
+  if (elem_num < 0)
+    elem_num = m_elemNum;
+  this->exportElem(RTYPE, out_array, elem_num);
 }
 
 std::map<Qnum, Matrix> UniTensor::getBlocks(rflag tp)const{

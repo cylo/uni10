@@ -1,2 +1,3 @@
 from .pyUni10 import *
 __version__="${UNI10_VERSION}"
+from tools import *

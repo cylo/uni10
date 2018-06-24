@@ -1,0 +1,6 @@
+def exportElem(ut):
+    if ut.typeID() == 1:
+        npa = ut.exportElemR(ut.elemNum())
+    elif ut.typeID() == 2:
+        npa = ut.exportElemC(ut.elemNum())
+    return npa

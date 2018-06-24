@@ -54,6 +54,7 @@ namespace std{
 %}
 
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* out_array, int elem_num)}
+%apply (std::complex<double>* ARGOUT_ARRAY1, int DIM1) {(std::complex<double>* out_array, int elem_num)}
 %feature("autodoc");
 
 %exception {
@@ -660,7 +661,6 @@ class UniTensor{
         UniTensor& permute(cflag tp, int inBondNum);
         UniTensor& combineBond(cflag tp, const std::vector<int>& combined_labels);
         void addGate(cflag tp, const std::vector<_Swap>& swaps);
-        std::complex<double>* getElem(cflag tp);
         Matrix getRawElem(cflag tp)const;
         std::complex<double> trace(cflag tp)const;
         UniTensor& partialTrace(cflag tp, int la, int lb);
@@ -673,7 +673,9 @@ class UniTensor{
         std::complex<double> at(cflag tp, const std::vector<int>& idxs)const;
         std::complex<double> at(cflag tp, const std::vector<size_t>& idxs)const;
         double* getElem();
-        void exportElem(double* out_array, int elem_num);
+        void exportElemR(double* out_array, int elem_num);
+        std::complex<double>* getElem(cflag tp);
+        void exportElemC(std::complex<double>* out_array, int elem_num);
         /*Complex operator()(size_t idx) const;*/
 
     %extend {

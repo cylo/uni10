@@ -798,7 +798,6 @@ namespace uni10 {
         void addGate(rflag tp, const std::vector<_Swap>& swaps);
 
         Real* getElem(rflag tp);
-        void exportElem(double *out_array, int elem_num, rflag tp);
 
 
         Matrix getRawElem(rflag tp)const;
@@ -880,9 +879,6 @@ namespace uni10 {
         void addGate(cflag tp, const std::vector<_Swap>& swaps);
 
 
-        Complex* getElem(cflag tp);
-        void exportElem(Complex *out_array, int elem_num, cflag tp);
-
         Matrix getRawElem(cflag tp)const;
         Complex trace(cflag tp)const;
         UniTensor& partialTrace(cflag tp, int la, int lb);
@@ -908,7 +904,10 @@ namespace uni10 {
         Complex at(cflag tp, const std::vector<int>& idxs)const;
         Complex at(cflag tp, const std::vector<size_t>& idxs)const;
         Real* getElem();
-        void exportElem(double *out_array, int elem_num);
+        void exportElemR(double *out_array, int elem_num = -1);
+        Complex* getElem(cflag tp);
+        void exportElemC(Complex *out_array, int elem_num = -1);
+
 
         /// @brief Access individual element
         ///
@@ -973,12 +972,14 @@ namespace uni10 {
         void initBlocks(rflag tp = RTYPE);
         void TelemAlloc(rflag tp = RTYPE);
         void TelemBzero(rflag tp = RTYPE);
+        void exportElem(rflag tp, double *out_array, int elem_num);
         /*********************  COMPLEX **********************/
         void initUniT(cflag tp);
         size_t grouping(cflag tp);
         void initBlocks(cflag tp);
         void TelemAlloc(cflag tp);
         void TelemBzero(cflag tp);
+        void exportElem(cflag tp, Complex *out_array, int elem_num);
         /*****************************************************/
 
         static const int HAVEBOND = 1;        /**< A flag for initialization */
