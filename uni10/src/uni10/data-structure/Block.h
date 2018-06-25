@@ -343,9 +343,9 @@ namespace uni10{
 	    Real operator[](size_t idx)const;
 	    Real at(rflag tp, size_t i, size_t j)const;
 	    Real* getElem(rflag tp = RTYPE)const;     //rename -> getRealElem() && getComplexElem();
+	    void exportElemR(double *out_array, int elem_num = -1);
 
 	    /*********************  COMPLEX **********************/
-
 
         Block(cflag _tp, size_t _Rnum, size_t _Cnum, bool _diag = false);
 	    void save(cflag _tp, const std::string& fname)const;
@@ -364,6 +364,7 @@ namespace uni10{
 	    Complex operator()(size_t idx)const;
 	    Complex at(cflag _tp, size_t i, size_t j)const;
 	    Complex* getElem(cflag _tp)const;     //rename -> getRealElem() && getComplexElem();
+	    void exportElemC(Complex *out_array, int elem_num = -1);
 
 	    friend class UniTensor;
 	    friend class Matrix;
@@ -377,6 +378,8 @@ namespace uni10{
 	    size_t Cnum;		//number of columns of the block
 	    bool diag;
 	    bool ongpu;
+	    void exportElem(rflag tp, double *out_array, int elem_num);
+	    void exportElem(cflag tp, Complex *out_array, int elem_num);
     };
     
     // Helper functions for multiplication of two blocks

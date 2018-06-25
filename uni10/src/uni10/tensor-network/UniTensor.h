@@ -74,7 +74,6 @@ namespace uni10 {
 
         /*******************  developping ************************/
 
-
         Real max() const;
         Real max(rflag tp) const;
 
@@ -86,7 +85,6 @@ namespace uni10 {
 
         UniTensor& absMaxNorm();
         UniTensor& absMaxNorm(rflag tp);
-
 
         /// @brief Returns the \f$L^2\f$ norm of UniTensor elements
         ///
@@ -160,17 +158,14 @@ namespace uni10 {
         std::vector<UniTensor> hosvd(rflag tp, int* group_labels, int* groups, size_t groupsSize, std::vector<Matrix>& Ls)const ;
         std::vector<UniTensor> hosvd(cflag tp, int* group_labels, int* groups, size_t groupsSize, std::vector<Matrix>& Ls)const ;
 
-
         std::vector<UniTensor> hosvd(std::vector<int>& group_labels, std::vector<int>& groups, std::vector<Matrix>& Ls)const ;
         std::vector<UniTensor> hosvd(rflag tp, std::vector<int>& group_labels, std::vector<int>& groups, std::vector<Matrix>& Ls)const ;
         std::vector<UniTensor> hosvd(cflag tp, std::vector<int>& group_labels, std::vector<int>& groups, std::vector<Matrix>& Ls)const ;
-
 
         std::vector<UniTensor> hosvd(int* group_labels, int* groups, size_t groupsSize, std::vector<std::map<Qnum, Matrix> >& Ls, bool returnL)const ;
 
         std::vector<UniTensor> hosvd(rflag tp, int* group_labels, int* groups, size_t groupsSize, std::vector<std::map<Qnum, Matrix> >& Ls, bool returnL)const ;
         std::vector<UniTensor> hosvd(cflag tp, int* group_labels, int* groups, size_t groupsSize, std::vector<std::map<Qnum, Matrix> >& Ls, bool returnL)const ;
-
 
         std::vector<UniTensor> hosvd(std::vector<int>& group_labels, std::vector<int>& groups, std::vector<std::map<Qnum, Matrix> >& Ls, bool returnL)const ;
 
@@ -179,8 +174,6 @@ namespace uni10 {
 
         UniTensor& cTranspose();
         UniTensor& cTranspose(cflag tp);
-
-
 
         /// @brief High-order SVD
         ///
@@ -199,7 +192,6 @@ namespace uni10 {
 
         std::vector<UniTensor> hosvd(rflag tp, size_t modeNum, size_t fixedNum, std::vector<std::map<Qnum, Matrix> >& Ls)const;
         std::vector<UniTensor> hosvd(rflag tp, size_t modeNum, size_t fixedNum, std::vector<Matrix>& Ls)const;
-
 
         std::vector<UniTensor> hosvd(cflag tp, size_t modeNum, size_t fixedNum = 0)const;
 
@@ -756,20 +748,16 @@ namespace uni10 {
 
         void putBlock(rflag tp, const Qnum& qnum, const Block& mat, bool force=false);
 
-
         void setElem(const Real* elem, bool _ongpu = false);
 
         /// @overload
         void setElem(const std::vector<Real>& elem, bool _ongpu = false);
 
-
         std::map<Qnum, Matrix> getBlocks(rflag tp)const;
-
 
         Matrix getBlock(rflag tp, bool diag = false)const;
 
         Matrix getBlock(rflag tp, const Qnum& qnum, bool diag = false)const;
-
 
         void set_zero(rflag tp);
         void set_zero(rflag tp, const Qnum& qnum);
@@ -790,15 +778,10 @@ namespace uni10 {
 
         friend UniTensor contract(rflag tp, UniTensor& Ta, UniTensor& Tb, bool fast);
 
-
         friend UniTensor otimes(rflag tp, const UniTensor& Ta, const UniTensor& Tb);
-
 
         UniTensor& combineBond(rflag tp, const std::vector<int>& combined_labels);
         void addGate(rflag tp, const std::vector<_Swap>& swaps);
-
-        Real* getElem(rflag tp);
-
 
         Matrix getRawElem(rflag tp)const;
 
@@ -828,36 +811,27 @@ namespace uni10 {
 
         void setElem(const Complex* c_elem, bool _ongpu = false);
 
-
         void setElem(const std::vector< Complex >& c_elem, bool _ongpu = false);
 
         std::map<Qnum, Matrix> getBlocks(cflag tp)const;
-
 
         Matrix getBlock(cflag tp, bool diag = false)const;
 
         Matrix getBlock(cflag tp, const Qnum& qnum, bool diag = false)const;
 
-
         void set_zero(cflag tp);
 
-
         void set_zero(cflag tp, const Qnum& qnum);
-
 
         void identity(cflag tp);
 
         void identity(cflag tp, const Qnum& qnum);
 
-
         void randomize(cflag tp);
-
 
         void orthoRand(cflag tp);
 
-
         void orthoRand(cflag tp, const Qnum& qnum);
-
 
         UniTensor& transpose(cflag tp);
 
@@ -867,17 +841,12 @@ namespace uni10 {
 
         UniTensor& permute(cflag tp, int inBondNum);
 
-
-
         friend UniTensor contract(cflag tp, UniTensor& Ta, UniTensor& Tb, bool fast);
-
 
         friend UniTensor otimes(cflag tp, const UniTensor& Ta, const UniTensor& Tb);
 
-
         UniTensor& combineBond(cflag tp, const std::vector<int>& combined_labels);
         void addGate(cflag tp, const std::vector<_Swap>& swaps);
-
 
         Matrix getRawElem(cflag tp)const;
         Complex trace(cflag tp)const;
@@ -903,11 +872,14 @@ namespace uni10 {
         Complex at(cflag tp, size_t idx)const;
         Complex at(cflag tp, const std::vector<int>& idxs)const;
         Complex at(cflag tp, const std::vector<size_t>& idxs)const;
+
+        /// @brief Access element array
+        ///
         Real* getElem();
+        Real* getElem(rflag tp);
         void exportElemR(double *out_array, int elem_num = -1);
         Complex* getElem(cflag tp);
         void exportElemC(Complex *out_array, int elem_num = -1);
-
 
         /// @brief Access individual element
         ///

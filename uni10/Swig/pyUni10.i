@@ -251,6 +251,7 @@ class Block{
     bool CelemIsNULL()const;
     bool RelemIsNULL()const;
     Real* getElem()const;
+    void exportElemR(double* out_array, int elem_num);
     /* deafult is real, so rflag is ignored for conflict with cflag */
     //Block(cflag _tp, size_t _Rnum, size_t _Cnum, bool _diag = false);
     void save(cflag _tp, const std::string& fname)const;
@@ -269,6 +270,7 @@ class Block{
     /*Complex operator()(size_t idx)const;*/
     Complex at(cflag _tp, size_t i, size_t j)const;
     Complex* getElem(cflag _tp)const;
+    void exportElemC(std::complex<double>* out_array, int elem_num);
 
     %extend {
       bool __eq__(const Block& b2){

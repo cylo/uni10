@@ -75,6 +75,35 @@ namespace uni10{
     return cm_elem;
   }
 
+  void Block::exportElem(cflag tp, Complex *out_array, int elem_num){
+    /// PYTHON ONLY!!!
+    try{
+      throwTypeError(tp);
+      if(out_array == NULL){
+        std::ostringstream err;
+        err<<"NULL out_array. Should allocate 'out_array' with size 'elem_num'.";
+        throw std::runtime_error(exception_msg(err.str()));
+      }
+      if(typeID() == 1){
+        std::ostringstream err;
+        err<<"This Matrix is REAL. Please use Block::exportElem(uni10::rflag, double *out_array, int elem_num) instead";
+        throw std::runtime_error(exception_msg(err.str()));
+      }
+    }
+    catch(const std::exception& e){
+      propogate_exception(e, "In function Block::exportElem(uni10::cflag, Complex *out_array, int elem_num):");
+    }
+    elem_num = std::min(elem_num, (int)elemNum());
+    memcpy(out_array, cm_elem, sizeof(Complex) * elem_num);
+  }
+
+  void Block::exportElemC(Complex *out_array, int elem_num){
+    /// PYTHON ONLY!!!
+    if (elem_num < 0)
+      elem_num = elemNum();
+    this->exportElem(CTYPE, out_array, elem_num);
+  }
+
   void Block::save(cflag tp, const std::string& fname)const{
     try{
       throwTypeError(tp);
