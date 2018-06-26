@@ -153,7 +153,15 @@ class Qnum {
               self->assign(_prtF, _U1, _prt);
               return *self;
           }
+          %pythoncode {
+              def __getstate__(self):
+                  return (self.prtF(), self.U1(), self.prt())
 
+              def __setstate__(self, state):
+                  prtf, u1, prt = state
+                  self.__init__()
+                  self.assignF(prtf, u1, prt)
+          }
       }
       /* Make Qnum Class immutable */
       static const int U1_UPB = 1000;//Upper bound of U1
@@ -200,6 +208,14 @@ class Bond {
               std::ostringstream oss(std::ostringstream::out);
               oss << (*self);
               return oss.str();
+          }
+          %pythoncode {
+              def __getstate__(self):
+                  return (self.type(), self.Qlist())
+
+              def __setstate__(self, state):
+                  btype, qlist = state
+                  self.__init__(btype, qlist)
           }
       }
       ~Bond();
@@ -296,7 +312,32 @@ class Block{
       Matrix __rmul__(double a){
         return a * (*self);
       }
+      %pythoncode {
+          def __init__(self, *args):
+              """
+              __init__(uni10::Block self) -> Block
+              __init__(uni10::Block self, size_t _Rnum, size_t _Cnum, bool _diag=False) -> Block
+              __init__(uni10::Block self, size_t _Rnum, size_t _Cnum) -> Block
+              __init__(uni10::Block self, Block _b) -> Block
+              """
+              ## override the machine-generated __init__
+              ## make the object picklable
+              this = _pyUni10.new_Block(*args)
+              try:
+                  self.this.append(this)
+              except __builtin__.Exception:
+                  self.this = this
+              self.args = args
 
+          def __getstate__(self):
+              if self.typeID() == 2:
+                  return {'args': self.args, 'elem': self.exportElemC(self.elemNum())}
+              return {'args': self.args, 'elem': self.exportElemR(self.elemNum())}
+
+          def __setstate__(self, state):
+              self.__init__(*state['args'])
+              self.setElem(state['elem'])
+      }
     }
 };
 
@@ -510,6 +551,17 @@ class Matrix: public Block {
           return Py_None;
       }
     }*/
+      %pythoncode {
+          def __getstate__(self):
+              if self.typeID() == 2:
+                  return ("C", self.row(), self.col(), self.isDiag(), self.exportElemC(self.elemNum()))
+              return ("R", self.row(), self.col(), self.isDiag(), self.exportElemR(self.elemNum()))
+
+          def __setstate__(self, state):
+              mtype, nrow, ncol, diag, elem = state
+              self.__init__(mtype, nrow, ncol, diag)
+              self.setElem(elem)
+      }
 
   }
 
@@ -730,6 +782,18 @@ class UniTensor{
       void setRawElemC(const std::vector< std::complex<double> >& elem, bool src_ongpu = false){
         (*self).setRawElem(elem);
       }
+      %pythoncode {
+          def __getstate__(self):
+              if self.typeID() == 2:
+                  return ("C", self.bond(), self.getName(), self.label(), self.exportElemC(self.elemNum()))
+              return ("R", self.bond(), self.getName(), self.label(), self.exportElemR(self.elemNum()))
+
+          def __setstate__(self, state):
+              utype, bonds, name, labels, elem = state
+              self.__init__(utype, bonds, name)
+              self.setLabel(labels)
+              self.setElem(elem)
+      }
 
     }
     /*
@@ -822,9 +886,29 @@ class Network {
       const std::string profile() {
         return (*self).profile(false);
       }
+      %pythoncode {
+          def __init__(self, *args):
+              """
+              __init__(uni10::Network self, std::string const & fname, std::vector< uni10::UniTensor *,std::allocator< uni10::UniTensor * > > const & tens) -> Network
+              __init__(uni10::Network self, std::string const & fname) -> Network
+              """
+              ## override the machine-generated __init__
+              ## make the object picklable
+              this = _pyUni10.new_Network(*args)
+              try:
+                  self.this.append(this)
+              except __builtin__.Exception:
+                  self.this = this
+              self.args = args
+
+          def __getstate__(self):
+              return {'args': self.args}
+
+          def __setstate__(self, state):
+              self.__init__(*state['args'])
+      }
     }
 };
 /* End of Network */
-
 
 };
