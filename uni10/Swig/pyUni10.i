@@ -561,6 +561,21 @@ class Matrix: public Block {
               mtype, nrow, ncol, diag, elem = state
               self.__init__(mtype, nrow, ncol, diag)
               self.setElem(elem)
+
+          def nparray(self):
+              if self.typeID() == 2:
+                  npa = self.exportElemC(self.elemNum())
+              else:
+                  npa = self.exportElemR(self.elemNum())
+              return npa.reshape((self.row(), self.col()))
+
+          @classmethod
+          def fromNparray(cls, npa):
+              mtype = "C" if npa.dtype == 'complex128' else "R"
+              nrow = npa.shape[0]; ncol = npa.shape[1]
+              mtx = cls(mtype, nrow, ncol)
+              mtx.setElem(npa.reshape((nrow*ncol,)))
+              return mtx
       }
 
   }
