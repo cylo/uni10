@@ -55,6 +55,8 @@ namespace std{
 
 %apply (double* ARGOUT_ARRAY1, int DIM1) {(double* out_array, int elem_num)}
 %apply (std::complex<double>* ARGOUT_ARRAY1, int DIM1) {(std::complex<double>* out_array, int elem_num)}
+%apply (double* IN_ARRAY1, int DIM1) {(double* in_array, int elem_num)}
+%apply (std::complex<double>* IN_ARRAY1, int DIM1) {(std::complex<double>* in_array, int elem_num)}
 %feature("autodoc");
 
 %exception {
@@ -336,7 +338,10 @@ class Block{
 
           def __setstate__(self, state):
               self.__init__(*state['args'])
-              self.setElem(state['elem'])
+              if self.typeID() == 2:
+                  self.setElemC(state['elem'])
+              else:
+                  self.setElemR(state['elem'])
       }
     }
 };
@@ -380,12 +385,14 @@ class Matrix: public Block {
     Matrix(size_t _Rnum, size_t _Cnum, const std::vector<double>& _elem, bool _diag=false, bool _ongpu = false, bool src_ongpu=false);
     void setElem(const double* elem, bool src_ongpu = false);
     void setElem(const std::vector<double>& elem, bool src_ongpu = false);
+    void setElemR(double* in_array, int elem_num);
     Matrix(size_t _Rnum, size_t _Cnum, const std::complex<double>* _elem, bool _diag=false, bool _ongpu=false, bool src_ongpu=false);
     Matrix(size_t _Rnum, size_t _Cnum, const std::vector< std::complex<double> >& _elem, bool _diag=false, bool _ongpu=false, bool src_ongpu=false);
 //    Matrix(cflag _tp, const std::string& fname);
 //    Matrix(cflag _tp, size_t _Rnum, size_t _Cnum, bool _diag=false, bool _ongpu=false);
     void setElem(const std::complex<double>* elem, bool src_ongpu = false);
     void setElem(const std::vector< std::complex<double> >& elem, bool src_ongpu = false);
+    void setElemC(std::complex<double>* in_array, int elem_num);
     void identity(cflag _tp);
     void set_zero(cflag _tp);
     void randomize(cflag _tp);
@@ -560,7 +567,10 @@ class Matrix: public Block {
           def __setstate__(self, state):
               mtype, nrow, ncol, diag, elem = state
               self.__init__(mtype, nrow, ncol, diag)
-              self.setElem(elem)
+              if self.typeID() == 2:
+                  self.setElemC(elem)
+              else:
+                  self.setElemR(elem)
 
           def nparray(self):
               if self.typeID() == 2:
@@ -571,10 +581,13 @@ class Matrix: public Block {
 
           @classmethod
           def fromNparray(cls, npa):
-              mtype = "C" if npa.dtype == 'complex128' else "R"
               nrow = npa.shape[0]; ncol = npa.shape[1]
-              mtx = cls(mtype, nrow, ncol)
-              mtx.setElem(npa.reshape((nrow*ncol,)))
+              if npa.dtype == 'complex128':
+                  mtx = cls("C", nrow, ncol)
+                  mtx.setElemC(npa.ravel())
+              else:
+                  mtx = cls("R", nrow, ncol)
+                  mtx.setElemR(npa.ravel())
               return mtx
       }
 
@@ -702,6 +715,7 @@ class UniTensor{
         void setRawElem(const double* rawElem);
         void setElem(const double* elem, bool _ongpu = false);
         void setElem(const std::vector<double>& elem, bool _ongpu = false);
+        void setElemR(double* in_array, int elem_num);
 
         UniTensor(std::complex<double> val);
         UniTensor(cflag tp, const std::vector<Bond>& _bonds, const std::string& _name = "");
@@ -714,6 +728,7 @@ class UniTensor{
         void putBlock(cflag tp, const Qnum& qnum, const Block& mat);
         void setElem(const std::complex<double>* c_elem, bool _ongpu = false);
         void setElem(const std::vector< std::complex<double> >& c_elem, bool _ongpu = false);
+        void setElemC(std::complex<double>* in_array, int elem_num);
         std::map<Qnum, Matrix> getBlocks(cflag tp)const;
         Matrix getBlock(cflag tp, bool diag = false)const;
         Matrix getBlock(cflag tp, const Qnum& qnum, bool diag = false)const;
@@ -807,7 +822,10 @@ class UniTensor{
               utype, bonds, name, labels, elem = state
               self.__init__(utype, bonds, name)
               self.setLabel(labels)
-              self.setElem(elem)
+              if self.typeID() == 2:
+                  self.setElemC(elem)
+              else:
+                  self.setElemR(elem)
       }
 
     }

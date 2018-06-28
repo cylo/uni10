@@ -752,6 +752,7 @@ namespace uni10 {
 
         /// @overload
         void setElem(const std::vector<Real>& elem, bool _ongpu = false);
+        void setElemR(double* in_array, int elem_num);
 
         std::map<Qnum, Matrix> getBlocks(rflag tp)const;
 
@@ -812,6 +813,7 @@ namespace uni10 {
         void setElem(const Complex* c_elem, bool _ongpu = false);
 
         void setElem(const std::vector< Complex >& c_elem, bool _ongpu = false);
+        void setElemC(Complex* in_array, int elem_num);
 
         std::map<Qnum, Matrix> getBlocks(cflag tp)const;
 

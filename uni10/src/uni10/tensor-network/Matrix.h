@@ -219,6 +219,7 @@ public:
 
     /// @overload
     void setElem(const std::vector<Real>& elem, bool src_ongpu = false);
+    void setElemR(double* in_array, int elem_num);
 
     /// @brief Set to identity
     ///
@@ -315,6 +316,7 @@ public:
 
     /// @overload
     void setElem(const std::vector< Complex >& elem, bool src_ongpu = false);
+    void setElemC(Complex* in_array, int elem_num);
 
     /// @brief Set to identity
     ///

@@ -152,6 +152,28 @@ void Matrix::setElem(const std::vector<Real>& elem, bool src_ongpu){
   }
 }
 
+void Matrix::setElemR(double* in_array, int elem_num){
+  /// PYTHON ONLY!!!
+  try{
+    if(diag == false && Rnum*Cnum != elem_num ){
+      std::ostringstream err;
+      err<<"Number of the input elements is: " << elem_num <<", and it doesn't match to the size of matrix: "\
+        << Rnum*Cnum << std::endl <<"In the file Block.cpp, line(" << __LINE__ << ")";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    if(diag == true && std::min(Rnum, Cnum) != elem_num){
+      std::ostringstream err;
+      err<<"Number of the input elements is: " << elem_num <<", and it doesn't match to the min(Rnum, Cnum) of matrix: "\
+        << std::min(Rnum, Cnum) << std::endl <<"In the file Block.cpp, line(" << __LINE__ << ")";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    this->setElem(in_array, false);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function Matrix::setElemR(double*, int):");
+  }
+}
+
 void Matrix::setElem(const Real* elem, bool src_ongpu){
   try{
     if(typeID() == 2){

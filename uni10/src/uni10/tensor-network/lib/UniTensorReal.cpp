@@ -199,6 +199,16 @@ void UniTensor::setElem(const std::vector<Real>& _elem, bool _ongpu){
   }
 }
 
+void UniTensor::setElemR(double *in_array, int elem_num){
+  /// PYTHON ONLY!!!
+  try{
+    this->setElem(in_array, false);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::setElemR(double*, int):");
+  }
+}
+
 void UniTensor::putBlock(rflag tp, const Block& mat, bool force){
 
   try{

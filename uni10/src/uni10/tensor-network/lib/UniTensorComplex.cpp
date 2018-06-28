@@ -193,7 +193,16 @@ void UniTensor::setElem(const std::vector<Complex>& _elem, bool _ongpu){
     setElem(&_elem[0], _ongpu);
   }
   catch(const std::exception& e){
-    propogate_exception(e, "In function UniTensor::setElem(std::vector<double>&, bool=false):");
+    propogate_exception(e, "In function UniTensor::setElem(std::vector<Complex>&, bool=false):");
+  }
+}
+
+void UniTensor::setElemC(Complex* in_array, int elem_num){
+  try{
+    this->setElem(in_array, false);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::setElemC(Complex*, int):");
   }
 }
 
