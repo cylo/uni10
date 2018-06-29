@@ -1076,7 +1076,6 @@ UniTensor& UniTensor::permute(int rowBondNum){
   return *this;
 }
 
-
 UniTensor& UniTensor::permute(int* newLabels, int rowBondNum){
   try{
     if(typeID() == 1)
@@ -1099,6 +1098,45 @@ UniTensor& UniTensor::permute(const std::vector<int>& newLabels, int rowBondNum)
   }
   catch(const std::exception& e){
     propogate_exception(e, "In function UniTensor::permute(std::vector<int>&, int):");
+  }
+  return *this;
+}
+
+UniTensor& UniTensor::permuteFm(int rowBondNum){
+  try{
+    if(typeID() == 1)
+      return permuteFm(RTYPE, rowBondNum);
+    else if(typeID() == 2)
+      return permuteFm(CTYPE, rowBondNum);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permuteFm(int):");
+  }
+  return *this;
+}
+
+UniTensor& UniTensor::permuteFm(int* newLabels, int rowBondNum){
+  try{
+    if(typeID() == 1)
+      return permuteFm(RTYPE, newLabels, rowBondNum);
+    else if(typeID() == 2)
+      return permuteFm(CTYPE, newLabels, rowBondNum);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permuteFm(int*, int):");
+  }
+	return *this;
+}
+
+UniTensor& UniTensor::permuteFm(const std::vector<int>& newLabels, int rowBondNum){
+  try{
+    if(typeID() == 1)
+      return permuteFm(RTYPE, newLabels, rowBondNum);
+    else if(typeID() == 2)
+      return permuteFm(CTYPE, newLabels, rowBondNum);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permuteFm(std::vector<int>&, int):");
   }
   return *this;
 }

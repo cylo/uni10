@@ -596,6 +596,12 @@ namespace uni10 {
         /// outgoing bonds
         /// @param inBondNum Number of incoming bonds after permutation
         UniTensor& permute(int inBondNum);
+        
+        /// @brief Permute the order of bonds considering Fermionic anti-commutation relations
+        ///
+        UniTensor& permuteFm(const std::vector<int>& newLabels, int inBondNum);
+        UniTensor& permuteFm(int* newLabels, int inBondNum);
+        UniTensor& permuteFm(int inBondNum);
 
         /// @brief Perform contraction of UniTensor
         ///
@@ -745,7 +751,6 @@ namespace uni10 {
         /// If \c mat is diagonal,  all the off-diagonal elements are set to zero.
         /// @param mat The matrix elements to be assigned
         void putBlock(rflag tp, const Block& mat, bool force=false);
-
         void putBlock(rflag tp, const Qnum& qnum, const Block& mat, bool force=false);
 
         void setElem(const Real* elem, bool _ongpu = false);
@@ -757,7 +762,6 @@ namespace uni10 {
         std::map<Qnum, Matrix> getBlocks(rflag tp)const;
 
         Matrix getBlock(rflag tp, bool diag = false)const;
-
         Matrix getBlock(rflag tp, const Qnum& qnum, bool diag = false)const;
 
         void set_zero(rflag tp);
@@ -772,10 +776,11 @@ namespace uni10 {
         UniTensor& transpose(rflag tp);
 
         UniTensor& permute(rflag tp, const std::vector<int>& newLabels, int inBondNum);
-
         UniTensor& permute(rflag tp, int* newLabels, int inBondNum);
-
         UniTensor& permute(rflag tp, int inBondNum);
+        UniTensor& permuteFm(rflag tp, const std::vector<int>& newLabels, int inBondNum);
+        UniTensor& permuteFm(rflag tp, int* newLabels, int inBondNum);
+        UniTensor& permuteFm(rflag tp, int inBondNum);
 
         friend UniTensor contract(rflag tp, UniTensor& Ta, UniTensor& Tb, bool fast);
 
@@ -799,49 +804,42 @@ namespace uni10 {
 
         /// @overload
         void setRawElem(const std::vector< Complex >& rawElem);
-
         /// @overload
         void setRawElem(const Complex* rawElem);
-
         /// @overload
         void setRawElem(cflag tp, const Block& blk);
 
         void putBlock(cflag tp, const Block& mat, bool force=false);
-
         void putBlock(cflag tp, const Qnum& qnum, const Block& mat, bool force=false);
 
         void setElem(const Complex* c_elem, bool _ongpu = false);
-
         void setElem(const std::vector< Complex >& c_elem, bool _ongpu = false);
         void setElemC(Complex* in_array, int elem_num);
 
         std::map<Qnum, Matrix> getBlocks(cflag tp)const;
 
         Matrix getBlock(cflag tp, bool diag = false)const;
-
         Matrix getBlock(cflag tp, const Qnum& qnum, bool diag = false)const;
 
         void set_zero(cflag tp);
-
         void set_zero(cflag tp, const Qnum& qnum);
 
         void identity(cflag tp);
-
         void identity(cflag tp, const Qnum& qnum);
 
         void randomize(cflag tp);
 
         void orthoRand(cflag tp);
-
         void orthoRand(cflag tp, const Qnum& qnum);
 
         UniTensor& transpose(cflag tp);
 
         UniTensor& permute(cflag tp, const std::vector<int>& newLabels, int inBondNum);
-
         UniTensor& permute(cflag tp, int* newLabels, int inBondNum);
-
         UniTensor& permute(cflag tp, int inBondNum);
+        UniTensor& permuteFm(cflag tp, const std::vector<int>& newLabels, int inBondNum);
+        UniTensor& permuteFm(cflag tp, int* newLabels, int inBondNum);
+        UniTensor& permuteFm(cflag tp, int inBondNum);
 
         friend UniTensor contract(cflag tp, UniTensor& Ta, UniTensor& Tb, bool fast);
 

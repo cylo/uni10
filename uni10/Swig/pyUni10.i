@@ -696,6 +696,9 @@ class UniTensor{
         UniTensor& permute(const std::vector<int>& newLabels, int inBondNum);
         UniTensor& permute(int* newLabels, int inBondNum);
         UniTensor& permute(int inBondNum);
+        UniTensor& permuteFm(const std::vector<int>& newLabels, int inBondNum);
+        UniTensor& permuteFm(int* newLabels, int inBondNum);
+        UniTensor& permuteFm(int inBondNum);
         UniTensor& combineBond(const std::vector<int>& combined_labels);
         static std::string profile(bool );
         //std::vector<_Swap> exSwap(const UniTensor& Tb)const;
@@ -740,9 +743,12 @@ class UniTensor{
         void orthoRand(cflag tp);
         void orthoRand(cflag tp, const Qnum& qnum);
         UniTensor& transpose(cflag tp);
-        UniTensor& permute(cflag tp, const std::vector<int>& newLabels, int inBondNum);
-        UniTensor& permute(cflag tp, int* newLabels, int inBondNum);
-        UniTensor& permute(cflag tp, int inBondNum);
+        //UniTensor& permute(cflag tp, const std::vector<int>& newLabels, int inBondNum);
+        //UniTensor& permute(cflag tp, int* newLabels, int inBondNum);
+        //UniTensor& permute(cflag tp, int inBondNum);
+        //UniTensor& permuteFm(cflag tp, const std::vector<int>& newLabels, int inBondNum);
+        //UniTensor& permuteFm(cflag tp, int* newLabels, int inBondNum);
+        //UniTensor& permuteFm(cflag tp, int inBondNum);
         UniTensor& combineBond(cflag tp, const std::vector<int>& combined_labels);
         void addGate(cflag tp, const std::vector<_Swap>& swaps);
         Matrix getRawElem(cflag tp)const;

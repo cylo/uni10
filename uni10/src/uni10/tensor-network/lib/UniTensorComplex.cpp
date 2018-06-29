@@ -784,6 +784,237 @@ UniTensor& UniTensor::permute(cflag tp, const std::vector<int>& newLabels, int r
         else{
           Real sign = 1.0;
           //For Fermionic system
+          //End Fermionic system
+          std::vector<int> Qin_idxs(bondNum, 0);
+          std::vector<int> Qot_idxs(bondNum, 0);
+          int Qin_off, Qot_off;
+          int tmp;
+          int Qin_RQoff, Qin_CQoff;
+          int Qot_CQoff, Qot_RQoff;
+          size_t sBin_r, sBin_c;	//sub-block of a Qidx
+          size_t sBin_rDim, sBin_cDim;	//sub-block of a Qidx
+          size_t sBot_cDim;	//sub-block of a Qidx
+          size_t sBot_r, sBot_c;
+          size_t Bin_cDim, Bot_cDim;
+          Complex* Ein_ptr;
+          Complex* Eot_ptr;
+          std::vector<int> sBin_idxs(bondNum, 0);
+          std::vector<int> sBin_sBdims(bondNum, 0);
+          std::vector<int> Qot_acc(bondNum, 1);
+          std::vector<int> sBot_acc(bondNum, 1);
+          for(int b = bondNum	- 1; b > 0; b--)
+            Qot_acc[b - 1] = Qot_acc[b] * UniTout.bonds[b].Qnums.size();
+
+          for(std::map<int, size_t>::iterator it = QidxEnc.begin(); it != QidxEnc.end(); it++){
+            Qin_off = it->first;
+            tmp = Qin_off;
+            int qdim;
+            for(int b = bondNum - 1; b >= 0; b--){
+              qdim = bonds[b].Qnums.size();
+              Qin_idxs[b] = tmp % qdim;
+              sBin_sBdims[b] = bonds[b].Qdegs[Qin_idxs[b]];
+              tmp /= qdim;
+            }
+            Qot_off = 0;
+            for(int b = 0; b < bondNum; b++){
+              Qot_idxs[b] = Qin_idxs[rsp_outin[b]];
+              Qot_off += Qot_idxs[b] * Qot_acc[b];
+            }
+            for(int b = bondNum - 1; b > 0; b--)
+              sBot_acc[rsp_outin[b-1]] = sBot_acc[rsp_outin[b]] * bonds[rsp_outin[b]].Qdegs[Qot_idxs[b]];
+            Qin_RQoff = Qin_off / CQdim;
+            Qin_CQoff = Qin_off % CQdim;
+            Qot_RQoff = Qot_off / UniTout.CQdim;
+            Qot_CQoff = Qot_off % UniTout.CQdim;
+            Bin_cDim = RQidx2Blk[Qin_RQoff]->Cnum;
+            Bot_cDim = UniTout.RQidx2Blk[Qot_RQoff]->Cnum;
+            Ein_ptr = RQidx2Blk[Qin_RQoff]->cm_elem + (RQidx2Off[Qin_RQoff] * Bin_cDim) + CQidx2Off[Qin_CQoff];
+            Eot_ptr = UniTout.RQidx2Blk[Qot_RQoff]->cm_elem + (UniTout.RQidx2Off[Qot_RQoff] * Bot_cDim) + UniTout.CQidx2Off[Qot_CQoff];
+            sBin_rDim = RQidx2Dim[Qin_RQoff];
+            sBin_cDim = CQidx2Dim[Qin_CQoff];
+            sBot_cDim = UniTout.CQidx2Dim[Qot_CQoff];
+            int cnt_ot = 0;
+            sBin_idxs.assign(bondNum, 0);
+            //if(Qnum::isFermionic()){}
+            for(sBin_r = 0; sBin_r < sBin_rDim; sBin_r++)
+              for(sBin_c = 0; sBin_c < sBin_cDim; sBin_c++){
+                sBot_r = cnt_ot / sBot_cDim;
+                sBot_c = cnt_ot % sBot_cDim;
+                Eot_ptr[(sBot_r * Bot_cDim) + sBot_c] = sign * Ein_ptr[(sBin_r * Bin_cDim) + sBin_c];
+                for(int bend = bondNum - 1; bend >= 0; bend--){
+                  sBin_idxs[bend]++;
+                  if(sBin_idxs[bend] < sBin_sBdims[bend]){
+                    cnt_ot += sBot_acc[bend];
+                    break;
+                  }
+                  else{
+                    cnt_ot -= sBot_acc[bend] * (sBin_idxs[bend] - 1);
+                    sBin_idxs[bend] = 0;
+                  }
+                }
+              }
+          }
+        }
+        UniTout.status |= HAVEELEM;
+      }
+      *this = UniTout;
+      this->setLabel(newLabels);
+    }
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permute(uni10::cflag, std::vector<int>&, int):");
+  }
+  return *this;
+}
+
+UniTensor& UniTensor::permuteFm(cflag tp, int rowBondNum){
+  try{
+    throwTypeError(tp);
+    std::vector<int> ori_labels = labels;
+    this->permuteFm(CTYPE, ori_labels, rowBondNum);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permuteFm(uni10::cflag, int):");
+  }
+  return *this;
+}
+
+UniTensor& UniTensor::permuteFm(cflag tp, int* newLabels, int rowBondNum){
+  try{
+    throwTypeError(tp);
+    std::vector<int> _labels(newLabels, newLabels + bonds.size());
+    this->permuteFm(CTYPE, _labels, rowBondNum);
+  }
+  catch(const std::exception& e){
+    propogate_exception(e, "In function UniTensor::permuteFm(uni10::clfag, int*, int):");
+  }
+  return *this;
+}
+
+UniTensor& UniTensor::permuteFm(cflag tp, const std::vector<int>& newLabels, int rowBondNum){
+  try{
+    throwTypeError(tp);
+    if((status & HAVEBOND) == 0){
+      std::ostringstream err;
+      err<<"There is no bond in the tensor(scalar) to permute.";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    if((labels.size() == newLabels.size()) == 0){
+      std::ostringstream err;
+      err<<"The size of the input new labels does not match for the number of bonds.";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    int bondNum = bonds.size();
+    std::vector<int> rsp_outin(bondNum);
+    int cnt = 0;
+    for(int i = 0; i < bondNum; i++)
+      for(int j = 0; j < bondNum; j++)
+        if(labels[i] == newLabels[j]){
+          rsp_outin[j] = i;
+          cnt++;
+        }
+    if((cnt == newLabels.size()) == 0){
+      std::ostringstream err;
+      err<<"The input new labels do not 1-1 correspond to the labels of the tensor.";
+      throw std::runtime_error(exception_msg(err.str()));
+    }
+    bool inorder = true;
+    for(int i = 1; i < bondNum; i++)
+      if(rsp_outin[i] != i){
+        inorder = false;
+        break;
+      }
+    if(inorder && RBondNum == rowBondNum)	//do nothing
+      return *this;
+    else{
+      std::vector<Bond> outBonds;
+      bool withoutSymmetry = true;
+      for(size_t b = 0; b < bonds.size(); b++){
+        outBonds.push_back(bonds[rsp_outin[b]]);
+        if(bonds[b].Qnums.size() != 1)
+          withoutSymmetry = false;
+      }
+      for(size_t b = 0; b < bonds.size(); b++){
+        if(b < rowBondNum)
+          outBonds[b].change(BD_IN);
+        else
+          outBonds[b].change(BD_OUT);
+      }
+      UniTensor UniTout(CTYPE, outBonds, name);
+      if(status & HAVEELEM){
+        if(withoutSymmetry){
+          if(!inorder){
+            if(ongpu && UniTout.ongpu){
+              size_t* perInfo = (size_t*)malloc(bondNum * 2 * sizeof(size_t));
+              std::vector<size_t> newAcc(bondNum);
+              newAcc[bondNum - 1] = 1;
+              perInfo[bondNum - 1] = 1;
+              for(int b = bondNum - 1; b > 0; b--){
+                newAcc[b - 1] = newAcc[b] * UniTout.bonds[b].Qdegs[0];
+                perInfo[b - 1] = perInfo[b] * bonds[b].Qdegs[0];
+              }
+              for(int b = 0; b < bondNum; b++)
+                perInfo[bondNum + rsp_outin[b]] = newAcc[b];
+              Complex* des_elem = UniTout.c_elem;
+              Complex* src_elem = c_elem;
+              reshapeElem(src_elem, bondNum, m_elemNum, perInfo, des_elem);
+              free(perInfo);
+            }
+            else{
+              Complex* des_elem = UniTout.c_elem;
+              Complex* src_elem = c_elem;
+              size_t memsize = m_elemNum * sizeof(Complex);
+              if(ongpu){
+                src_elem = (Complex*)elemAllocForce(memsize, false);
+                elemCopy(src_elem, c_elem, memsize, false, ongpu);
+              }
+              if(UniTout.ongpu)
+                des_elem = (Complex*)elemAllocForce(memsize, false);
+
+              std::vector<size_t> transAcc(bondNum);
+              std::vector<size_t> newAcc(bondNum);
+              transAcc[bondNum - 1] = 1;
+              newAcc[bondNum - 1] = 1;
+              for(int b = bondNum - 1; b > 0; b--)
+                newAcc[b - 1] = newAcc[b] * UniTout.bonds[b].Qdegs[0];
+              std::vector<int> bondDims(bondNum);
+              std::vector<int> idxs(bondNum);
+              for(int b = 0; b < bondNum; b++){
+                transAcc[rsp_outin[b]] = newAcc[b];
+                bondDims[b] = bonds[b].Qdegs[0];
+                idxs[b] = 0;
+              }
+              size_t cnt_ot = 0;
+              for(size_t i = 0; i < m_elemNum; i++){
+                des_elem[cnt_ot] = src_elem[i];
+                for(int bend = bondNum - 1; bend >= 0; bend--){
+                  idxs[bend]++;
+                  if(idxs[bend] < bondDims[bend]){
+                    cnt_ot += transAcc[bend];
+                    break;
+                  }
+                  else{
+                    cnt_ot -= transAcc[bend] * (idxs[bend] - 1);
+                    idxs[bend] = 0;
+                  }
+                }
+              }
+              if(ongpu)
+                elemFree(src_elem, memsize, false);
+              if(UniTout.ongpu){
+                elemCopy(UniTout.c_elem, des_elem, memsize, UniTout.ongpu, false);
+                elemFree(des_elem, memsize, false);
+              }
+            }
+          }
+          else{  //non-symmetry inorder
+            size_t memsize = m_elemNum * sizeof(Complex);
+            elemCopy(UniTout.c_elem, c_elem, memsize, UniTout.ongpu, ongpu);
+          }
+        }
+        else{
+          Real sign = 1.0;
+          //For Fermionic system
           std::vector<_Swap> swaps;
           if(Qnum::isFermionic()){
             std::vector<int> inLabelF(bondNum);
@@ -893,7 +1124,7 @@ UniTensor& UniTensor::permute(cflag tp, const std::vector<int>& newLabels, int r
     }
   }
   catch(const std::exception& e){
-    propogate_exception(e, "In function UniTensor::permute(uni10::cflag, std::vector<int>&, int):");
+    propogate_exception(e, "In function UniTensor::permuteFm(uni10::cflag, std::vector<int>&, int):");
   }
   return *this;
 }
