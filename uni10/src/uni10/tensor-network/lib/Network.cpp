@@ -351,6 +351,38 @@ void Network::fromfile(const std::string& fname){//names, name2pos, label_arr, R
 			}
 			break;
 		}
+    else if(name == "SWAP"){
+      char *option_line = new char[str.length()+1];
+      strcpy (option_line, str.c_str());
+      std::vector<std::string> swap_dirty_str;
+      // remove '('
+      for(unsigned int c = 0; c < strlen(option_line); c++)
+        if(option_line[c] == '(')
+          option_line[c] = ' ';
+      char *option_pch = strtok(option_line, " : \n");
+      while(option_pch){
+        option_pch = strtok(NULL, " , \n");
+        if(option_pch != NULL){
+          swap_dirty_str.push_back(option_pch);
+        }
+      }
+      for (unsigned int s = 0; s < swap_dirty_str.size(); s++){
+        if (s%2 == 0) {
+          swap_gates.push_back(_Swap());
+          swap_gates.back().b1 = std::stoi(swap_dirty_str[s]);
+        }
+        else {
+          std::string::iterator it = std::find(swap_dirty_str[s].begin(), swap_dirty_str[s].end(), ')');
+          if(it == swap_dirty_str[s].end()) {
+            std::cout << "some error msg?\n";
+            return;
+          }
+          swap_gates.back().b2 = std::stoi(swap_dirty_str[s]);
+        }
+      }
+      break;
+    }
+
 		name2pos[name] = names.size();
 		names.push_back(name);
 		std::vector<int> labels;
@@ -502,7 +534,7 @@ void Network::construct(){
     err<<"Error when constructing the network. The bond number of the resulting tensor is different from the bond number of 'TOUT'";
     throw std::runtime_error(exception_msg(err.str()));
   }
-	addSwap();
+	//addSwap();
 	load = true;
 }
 
@@ -699,12 +731,22 @@ UniTensor Network::launch(const std::string& _name){
   try{
     if(!load)
       construct();
-    for(int t = 0; t < tensors.size(); t++)
-      if(Qnum::isFermionic() && !swapflags[t]){
-	tensors[t]->addGate(swaps_arr[t]);
-	swapflags[t] = true;
-      }
+    // for(int t = 0; t < tensors.size(); t++)
+    //   if(Qnum::isFermionic() && !swapflags[t]){
+	  //     tensors[t]->addGate(swaps_arr[t]);
+	  //     swapflags[t] = true;
+    //   }
     UniTensor UniT = merge(root);
+    this->applySwapGate(UniT);
+    if (swap_gates.size() > 0) {
+      std::string unswap_str = "";
+      for (std::vector<_Swap>::iterator it=swap_gates.begin(); it!=swap_gates.end();) {
+        unswap_str += (" (" + std::to_string((*it).b1) + ", " + std::to_string((*it).b2) + ")");
+        ++it;
+      }
+      std::cerr << ("Unswapped gates"+unswap_str+" found. Manually order the contraction if necessary.").c_str();
+    }
+
     int idx = label_arr.size() - 1;
     if(label_arr.size() > 0 && label_arr[idx].size() > 1)
       UniT.permute(label_arr[idx], Rnums[idx]);
@@ -717,23 +759,43 @@ UniTensor Network::launch(const std::string& _name){
   }
 }
 
+void Network::applySwapGate(UniTensor& UniT){
+  // apply swap gate if label contains _Swap
+  for (std::vector<_Swap>::iterator it=swap_gates.begin(); it!=swap_gates.end();) {
+    if(UniT.containLabels(*it)) {
+      UniT.applySwapGate(*it);
+      it = swap_gates.erase(it);
+    }
+    else
+      ++it;
+  }
+}
+
 UniTensor Network::merge(Node* nd){
   if(nd->left->T == NULL){
     UniTensor lftT = merge(nd->left);
     if(nd->right->T == NULL){
       UniTensor rhtT = merge(nd->right);
+      this->applySwapGate(lftT);
+      this->applySwapGate(rhtT);
       return contract(lftT, rhtT, true);
     }
     else{
+      this->applySwapGate(lftT);
+      this->applySwapGate(*(nd->right->T));
       return contract(lftT, *(nd->right->T), true);
     }
   }
   else{
     if(nd->right->T == NULL){
       UniTensor rhtT = merge(nd->right);
+      this->applySwapGate(*(nd->left->T));
+      this->applySwapGate(rhtT);
       return contract(*(nd->left->T), rhtT, true);
     }
     else{
+      this->applySwapGate(*(nd->left->T));
+      this->applySwapGate(*(nd->right->T));
       return contract(*(nd->left->T), *(nd->right->T), true);
     }
   }

@@ -213,6 +213,7 @@ private:
     std::vector<Node*> leafs;
     std::vector<UniTensor*> tensors;
     std::vector< std::vector<_Swap> > swaps_arr;
+    std::vector<_Swap> swap_gates;  // swap gates
     std::vector<bool> swapflags;
     std::vector<int> conOrder;  //contraction order;
     std::vector<int> order; //add order
@@ -230,6 +231,7 @@ private:
     void clean(Node* nd);
     void fromfile(const std::string& fname);
     void findConOrd(Node* nd);
+    void applySwapGate(UniTensor& UniT);
     void addSwap();
     int rollcall();
     size_t sum_of_memory_usage();
