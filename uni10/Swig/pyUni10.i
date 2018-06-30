@@ -97,9 +97,16 @@ enum parityFType{
   PRTF_ODD = 1
 };
 typedef struct{
-        int b1;
-        int b2;
+  int b1;
+  int b2;
 }_Swap;
+%pythoncode{
+def Swap(b1, b2):
+    sw = _Swap()
+    sw.b1 = b1
+    sw.b2 = b2
+    return sw
+}
 
 class Qnum {
   public:
@@ -663,6 +670,7 @@ class UniTensor{
         void setLabel(const int newLabel, const size_t idx);
         void setLabel(const std::vector<int>& newLabels);
         void setLabel(int* newLabels);
+        bool containLabels(const std::vector<int>& subLabels);
         std::vector<int> label()const;
         int label(size_t idx)const;
         std::string getName() const;
@@ -699,6 +707,9 @@ class UniTensor{
         UniTensor& permuteFm(const std::vector<int>& newLabels, int inBondNum);
         UniTensor& permuteFm(int* newLabels, int inBondNum);
         UniTensor& permuteFm(int inBondNum);
+        void applySwapGate(int to_permute, const std::vector<int>& to_cross, bool permute_back = false);
+        void applySwapGate(int to_permute, int to_cross, bool permute_back = false);
+        void applySwapGate(_Swap to_swap, bool permute_back = false);
         UniTensor& combineBond(const std::vector<int>& combined_labels);
         static std::string profile(bool );
         //std::vector<_Swap> exSwap(const UniTensor& Tb)const;

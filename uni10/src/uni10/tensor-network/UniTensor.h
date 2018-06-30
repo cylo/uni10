@@ -414,6 +414,11 @@ namespace uni10 {
         /// @return Label of Bond \c idx
         int label(size_t idx)const;
 
+        /// @brief Check if containing these labels
+        ///
+        bool containLabels(const std::vector<int>& subLabels);
+        bool containLabels(const _Swap swap);
+
         /// @brief Access name
         ///
         /// Return the name of the UniTensor.
@@ -602,6 +607,13 @@ namespace uni10 {
         UniTensor& permuteFm(const std::vector<int>& newLabels, int inBondNum);
         UniTensor& permuteFm(int* newLabels, int inBondNum);
         UniTensor& permuteFm(int inBondNum);
+
+        /// @brief Apply swap gates to Fermionic tensors
+        ///
+        /// bonds to_cross must be in consecutive order in label()
+        void applySwapGate(int to_permute, const std::vector<int>& to_cross, bool permute_back = false);
+        void applySwapGate(int to_permute, int to_cross, bool permute_back = false);
+        void applySwapGate(_Swap to_swap, bool permute_back = false);
 
         /// @brief Perform contraction of UniTensor
         ///

@@ -706,6 +706,22 @@ void UniTensor::setLabel(int* newLabels){
   }
 }
 
+bool UniTensor::containLabels(const std::vector<int>& subLabels){
+  bool contains = true;
+  int i = 0;
+  int len = subLabels.size();
+  while (contains && i < len){
+    contains *= (std::find(labels.begin(), labels.end(), subLabels[i]) != labels.end());
+    i += 1;
+  }
+  return contains;
+}
+
+bool UniTensor::containLabels(const _Swap swap){
+  std::vector<int> subLabels = {swap.b1, swap.b2};
+  return this->containLabels(subLabels);
+}
+
 std::vector<int> UniTensor::label()const{
   return labels;
 }
@@ -1139,6 +1155,76 @@ UniTensor& UniTensor::permuteFm(const std::vector<int>& newLabels, int rowBondNu
     propogate_exception(e, "In function UniTensor::permuteFm(std::vector<int>&, int):");
   }
   return *this;
+}
+
+void UniTensor::applySwapGate(int to_permute, const std::vector<int>& to_cross, bool permute_back){
+  std::vector<int> lab_ori = this->label();
+  int tbn = lab_ori.size();
+  int ibn = this->inBondNum();
+  int sgn = to_cross.size();  // swap gate number
+  std::vector<int> lab_tmp;
+  std::vector<int> lab_fin;
+
+  std::vector<int> indi;  // indicate the bond is before/at/after crossed bonds
+  bool before = true;
+  for (int i = 0; i < tbn; ++i) {
+    bool found = (lab_ori[i] == to_permute);
+    int j = 0;
+    while (!found && j < sgn) {
+      found = (lab_ori[i] == to_cross[j]);
+      j += 1;
+    }
+    if (found) {
+      indi.push_back(1);
+      if (before)
+        before = false;
+    }
+    else
+      indi.push_back((int)(!before)*2);
+  }
+
+  for (int n = 0; n < tbn; ++n) {
+    if (indi[n] == 0) {
+      lab_tmp.push_back(lab_ori[n]);
+      lab_fin.push_back(lab_ori[n]);
+    }
+  }
+
+  lab_fin.push_back(to_permute);
+  for (int j = 0; j < sgn; ++j) {
+    lab_tmp.push_back(to_cross[j]);
+    lab_fin.push_back(to_cross[j]);
+  }
+  lab_tmp.push_back(to_permute);
+
+  for (int n = 0; n < tbn; ++n) {
+    if (indi[n] == 2) {
+      lab_tmp.push_back(lab_ori[n]);
+      lab_fin.push_back(lab_ori[n]);
+    }
+  }
+
+  auto itc1 = std::find(lab_ori.begin(), lab_ori.end(), to_cross[0]);
+  auto itc2 = std::find(lab_ori.begin(), lab_ori.end(), to_cross[to_cross.size()-1]);
+  auto itp = std::find(lab_ori.begin(), lab_ori.end(), to_permute);
+  auto ic1 = std::distance(lab_ori.begin(), itc1);
+  auto ic2 = std::distance(lab_ori.begin(), itc2);
+  auto ip = std::distance(lab_ori.begin(), itp);
+  bool out2in_tmp = (this->bond()[ic2].type() == 1) && (this->bond()[ip].type() == -1);
+  bool out2in_fin = (this->bond()[ic1].type() == 1) && (this->bond()[ip].type() == -1);
+  this->permute(lab_tmp, ibn+(int)out2in_tmp);  // permute to_permute to neighbor of to_cross
+  this->permuteFm(lab_fin, ibn+(int)out2in_fin);  // apply swap gates
+  if (permute_back)
+    this->permute(lab_ori, ibn);
+}
+
+void UniTensor::applySwapGate(int to_permute, int to_cross, bool permute_back){
+  std::vector<int> to_cross_vec = {to_cross};
+  this->applySwapGate(to_permute, to_cross_vec, permute_back);
+}
+
+void UniTensor::applySwapGate(_Swap to_swap, bool permute_back){
+  this->applySwapGate(to_swap.b1, to_swap.b2, permute_back);
 }
 
 UniTensor& UniTensor::combineBond(const std::vector<int>&cmbLabels){
