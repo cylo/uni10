@@ -601,7 +601,7 @@ namespace uni10 {
         /// outgoing bonds
         /// @param inBondNum Number of incoming bonds after permutation
         UniTensor& permute(int inBondNum);
-        
+
         /// @brief Permute the order of bonds considering Fermionic anti-commutation relations
         ///
         UniTensor& permuteFm(const std::vector<int>& newLabels, int inBondNum);
