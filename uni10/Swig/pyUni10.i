@@ -843,6 +843,20 @@ class UniTensor{
                   self.setElemC(elem)
               else:
                   self.setElemR(elem)
+
+          def putBlockNparray(self, npa, qn=Qnum()):
+              blk = Matrix.fromNparray(npa)
+              self.putBlock(qn, blk)
+
+          def getBlockNparray(self, qn=Qnum(), diag=False):
+              return self.getBlock(qn, diag).nparray()
+
+          def getBlocksNparray(self):
+              qnums = self.blockQnum()
+              blk_dict = {}
+              for qn in qnums:
+                  blk_dict[qn] = self.getBlock(qn).nparray()
+              return blk_dict
       }
 
     }
