@@ -6,11 +6,11 @@ Users are encouraged to checkout the latest version from official repo.
 
 # However...
 
-For those current `pyUni10 v1.0` users who are  
-looking for extensions/patches instead of a paradigm shift,  
+For those current `pyUni10 v1.0` users  
+who are looking for enhancements/patches instead of a paradigm shift,  
 you can try **pyUni10-rev** branch of this fork.
 
 # New Features
  - Better Numpy support
- - Multiprocessing ready
+ - Support multiprocessing, pandas
  - Fermionic Network contraction

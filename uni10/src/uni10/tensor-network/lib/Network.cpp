@@ -380,7 +380,7 @@ void Network::fromfile(const std::string& fname){//names, name2pos, label_arr, R
           swap_gates.back().b2 = std::stoi(swap_dirty_str[s]);
         }
       }
-      break;
+      continue;
     }
 
 		name2pos[name] = names.size();
