@@ -1,6 +1,94 @@
+from .pyUni10 import *
+import numpy as np
+
 def exportElem(uobj):
     if uobj.typeID() == 1:
         npa = uobj.exportElemR(uobj.elemNum())
     elif uobj.typeID() == 2:
         npa = uobj.exportElemC(uobj.elemNum())
     return npa
+
+
+class NPTensor(np.ndarray):
+    """
+    """
+    def __new__(cls, tensor):
+        try:
+            bds = tensor.bond()
+            shape = tuple([bds[i].dim() for i in xrange(len(bds))])
+            nda = exportElem(tensor).reshape(shape)
+            self = np.asarray(nda).view(cls)
+            self.label = tensor.label()
+            self.bn = tensor.bondNum()
+            self.ibn = tensor.inBondNum()
+        except:
+            self = np.asarray(tensor).view(cls)
+            try:
+                self.bn = tensor.bn
+                self.ibn = tensor.ibn
+                self.label = tensor.label
+            except:
+                self.bn = len(self.shape)
+                self.ibn = self.bn
+                self.label = tuple(range(self.bn))
+        self.mapLabelBond()
+        return self
+
+    def mapLabelBond(self):
+        self.lbmap = {}
+        for i in xrange(self.bn):
+            self.lbmap[self.label[i]] = i
+
+    def setLabel(self, label):
+        assert len(label) == len(self.shape), 'Label setting error.'
+        self.label = tuple(label)
+        self.mapLabelBond()
+
+    def permute(self, label=[], ibn=None):
+        """"""
+        assert len(label) == len(self.label) and set(label) == set(self.label), 'Label setting error.'
+        shape_new = tuple([self.lbmap[label[i]] for i in xrange(self.bn)])
+        npt = self.transpose(shape_new)
+        npt.bn = self.bn
+        npt.ibn = ibn if ibn else self.ibn
+        npt.setLabel(label)
+        return npt
+
+    def toUniTensor(self):
+        """"""
+        bds = []
+        for i in xrange(self.bn):
+            if i < self.ibn:
+                bds.append(Bond(BD_IN, self.shape[i]))
+            else:
+                bds.append(Bond(BD_OUT, self.shape[i]))
+        if self.dtype == 'complex128':
+            ut = UniTensor("C", bds)
+            ut.setElemC(self.ravel())
+        else:
+            ut = UniTensor(bds)
+            ut.setElemR(self.ravel())
+        ut.setLabel(self.label)
+        return ut
+
+
+def contractNPT(t1, t2):
+    """"""
+    assert type(t1) == NPTensor and type(t1) == type(t2), 'Tensor type error.'
+    lab1 = t1.label; lab2 = t2.label
+    lab_common = tuple(set(lab1).intersection(lab2))
+    lab_final = tuple(set(list(lab1) + list(lab2)) - set(lab1).intersection(lab2))
+    nlc = len(lab_common)
+    if nlc > 0:
+        idx1 = [t1.lbmap[lab_common[i]] for i in xrange(nlc)]
+        idx2 = [t2.lbmap[lab_common[i]] for i in xrange(nlc)]
+        npt = NPTensor(np.tensordot(t1, t2, axes=(idx1, idx2)))
+        npt.setLabel(lab_final)
+        npt.ibn = len(lab1) - nlc
+    else:
+        npt = NPTensor(np.tensordot(t1, t2, axes=0))
+        npt.setLabel(lab_final)
+        lab_ot = [lab1[i] for i in xrange(t1.ibn)] + [lab2[i] for i in xrange(t2.ibn)] \
+            + [lab1[i] for i in xrange(t1.ibn, t1.bn)] + [lab2[i] for i in xrange(t2.ibn, t2.bn)]
+        npt = npt.permute(lab_ot, t1.ibn+t2.ibn)
+    return npt

@@ -744,7 +744,7 @@ UniTensor Network::launch(const std::string& _name){
         unswap_str += (" (" + std::to_string((*it).b1) + ", " + std::to_string((*it).b2) + ")");
         ++it;
       }
-      std::cerr << ("Unswapped gates"+unswap_str+" found. Manually order the contraction if necessary.").c_str();
+      std::cerr << ("Unused swap gate"+unswap_str+" found. Manually order the contraction if necessary.").c_str();
     }
 
     int idx = label_arr.size() - 1;
