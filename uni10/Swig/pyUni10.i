@@ -926,6 +926,23 @@ UniTensor otimes(const UniTensor& Ta, const UniTensor& Tb);
 UniTensor otimes(cflag tp, const UniTensor& Ta, const UniTensor& Tb);
 /* End of UniTensor */
 
+
+/* class Node */
+class Node {
+public:
+    Node();
+    Node(UniTensor* Tp);
+    Node(const Node& nd);
+    ~Node();
+    friend class Network;
+    UniTensor* T;
+    Node* parent;
+    Node* left;
+    Node* right;
+};
+/* End of Node */
+
+
 /* class Network */
 class Network {
   public:
@@ -936,6 +953,11 @@ class Network {
     void putTensor(const std::string& name, const UniTensor& UniT, bool force=true);
     void putTensorT(const std::string& nameT, const UniTensor& UniT, bool force=true);
     UniTensor launch(const std::string& name="");
+    bool isLoaded();
+    std::vector<int> getLabelTOUT();
+    int getInBondNumTOUT();
+    void construct();
+    Node* root;
     /*void profile();*/
     /*friend std::ostream& operator<< (std::ostream& os, Network& nd);*/
     %extend {

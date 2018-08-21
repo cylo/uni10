@@ -748,7 +748,7 @@ UniTensor Network::launch(const std::string& _name){
     }
 
     int idx = label_arr.size() - 1;
-    if(label_arr.size() > 0 && label_arr[idx].size() > 1)
+    if(label_arr.size() > 0 && label_arr[idx].size() > 0)
       UniT.permute(label_arr[idx], Rnums[idx]);
     UniT.setName(_name);
     return UniT;
@@ -1054,4 +1054,21 @@ void Network::addSwap(){
 		}
 	}
 }
+
+bool Network::isLoaded() { return load; }
+
+std::vector<int> Network::getLabelTOUT() {
+  if (label_arr.size() > 0)
+    return label_arr[label_arr.size()-1];
+  else
+    return std::vector<int>();
+}
+
+int Network::getInBondNumTOUT() {
+  if (label_arr.size() > 0)
+    return Rnums[label_arr.size()-1];
+  else
+    return 0;
+}
+
 }; /* namespace uni10 */

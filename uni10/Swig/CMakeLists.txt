@@ -175,7 +175,7 @@ if (WIN32)
 endif()
 
 configure_file(setup.py.in setup.py)
-configure_file(tools.py.in tools.py)
+configure_file(nptensor.py.in nptensor.py)
 configure_file(__init__.py.in __init__.py)
 
 #add_custom_command(TARGET _pyUni10
@@ -206,7 +206,7 @@ install(FILES ${CMAKE_SWIG_OUTDIR}/pyUni10.py
 
 install(FILES ${CMAKE_SWIG_OUTDIR}/__init__.py
         DESTINATION pyUni10 COMPONENT pyUni10)
-install(FILES ${CMAKE_SWIG_OUTDIR}/tools.py
+install(FILES ${CMAKE_SWIG_OUTDIR}/nptensor.py
         DESTINATION pyUni10 COMPONENT pyUni10)
 install(FILES ${CMAKE_SWIG_OUTDIR}/setup.py
         DESTINATION pyUni10 COMPONENT pyUni10)

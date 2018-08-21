@@ -204,6 +204,11 @@ public:
     /// The output shows how the network is contracted.
 
     friend std::ostream& operator<< (std::ostream& os, Network& net);
+    bool isLoaded();
+    std::vector<int> getLabelTOUT();
+    int getInBondNumTOUT();
+    void construct();
+    Node* root;
 private:
     void preprint(std::ostream& os, Node* nd, int layer)const;  //pre-order print
     std::vector<std::string> names;
@@ -218,12 +223,10 @@ private:
     std::vector<int> conOrder;  //contraction order;
     std::vector<int> order; //add order
     std::vector<int> brakets;   //add order
-    Node* root;
     bool load;  //whether or not the network is ready for contraction, construct=> load=true, destruct=>load=false
     int times;  //construction times
     int tot_elem;   //total memory ussage
     int max_elem;   //maximum
-    void construct();
     void destruct();
     void matching(Node* sbj, Node* tar);
     void branch(Node* sbj, Node* tar);

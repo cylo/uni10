@@ -1,14 +1,6 @@
 from .pyUni10 import *
 import numpy as np
 
-def exportElem(uobj):
-    if uobj.typeID() == 1:
-        npa = uobj.exportElemR(uobj.elemNum())
-    elif uobj.typeID() == 2:
-        npa = uobj.exportElemC(uobj.elemNum())
-    return npa
-
-
 class NPTensor(np.ndarray):
     """
     """
@@ -44,13 +36,13 @@ class NPTensor(np.ndarray):
         self.label = tuple(label)
         self.mapLabelBond()
 
-    def permute(self, label=[], ibn=None):
+    def permute(self, label=[], ibn=-1):
         """"""
         assert len(label) == len(self.label) and set(label) == set(self.label), 'Label setting error.'
         shape_new = tuple([self.lbmap[label[i]] for i in xrange(self.bn)])
         npt = self.transpose(shape_new)
         npt.bn = self.bn
-        npt.ibn = ibn if ibn else self.ibn
+        npt.ibn = ibn if ibn >= 0 else self.ibn
         npt.setLabel(label)
         return npt
 
@@ -76,8 +68,9 @@ def contractNPT(t1, t2):
     """"""
     assert type(t1) == NPTensor and type(t1) == type(t2), 'Tensor type error.'
     lab1 = t1.label; lab2 = t2.label
-    lab_common = tuple(set(lab1).intersection(lab2))
-    lab_final = tuple(set(list(lab1) + list(lab2)) - set(lab1).intersection(lab2))
+    lab_common = list(set(lab1).intersection(lab2))
+    lab_all = list(lab1) + list(lab2)
+    lab_final = [x for x in lab_all if x not in lab_common]
     nlc = len(lab_common)
     if nlc > 0:
         idx1 = [t1.lbmap[lab_common[i]] for i in xrange(nlc)]
@@ -92,3 +85,53 @@ def contractNPT(t1, t2):
             + [lab1[i] for i in xrange(t1.ibn, t1.bn)] + [lab2[i] for i in xrange(t2.ibn, t2.bn)]
         npt = npt.permute(lab_ot, t1.ibn+t2.ibn)
     return npt
+
+
+def isLeaf(self):
+    return (not self.T == None)
+
+Node.isLeaf = isLeaf
+
+
+def mergeNPT(self, nd):
+    """"""
+    if not nd.left.isLeaf():
+        npt_l = self.mergeNPT(nd.left)
+        if not nd.right.isLeaf():
+            npt_r = self.mergeNPT(nd.right)
+            return contractNPT(npt_l, npt_r)
+        return contractNPT(npt_l, NPTensor(nd.right.T))
+    else:
+        if not nd.right.isLeaf():
+            npt_r = self.mergeNPT(nd.right)
+            return contractNPT(NPTensor(nd.left.T), npt_r)
+        return contractNPT(NPTensor(nd.left.T), NPTensor(nd.right.T))
+
+def launchNPT(self, to_ut=True, _name=""):
+    """"""
+    try:
+        if not self.isLoaded():
+            self.construct()
+        npt = self.mergeNPT(self.root)
+
+        if len(self.getLabelTOUT()) > 0:
+            npt = npt.permute(self.getLabelTOUT(), self.getInBondNumTOUT())
+        if to_ut:
+            ut = npt.toUniTensor()
+            ut.setName(_name)
+            return ut
+        return npt
+    except Exception as e:
+        print "In function Network::launchNPT(std::string&): {}".format(str(e))
+        raise
+
+Network.mergeNPT = mergeNPT
+Network.launchNPT = launchNPT
+
+
+def exportElem(uobj):
+    if uobj.typeID() == 1:
+        npa = uobj.exportElemR(uobj.elemNum())
+    elif uobj.typeID() == 2:
+        npa = uobj.exportElemC(uobj.elemNum())
+    return npa
