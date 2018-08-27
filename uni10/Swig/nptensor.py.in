@@ -6,6 +6,8 @@ class NPTensor(np.ndarray):
     """
     def __new__(cls, tensor):
         try:
+            qns = tensor.blockQnum()
+            assert len(qns) == 1 and qns[0] == Qnum(0), 'NPTensor does not support Qnums.'
             bds = tensor.bond()
             shape = tuple([bds[i].dim() for i in xrange(len(bds))])
             nda = exportElem(tensor).reshape(shape)
@@ -13,7 +15,7 @@ class NPTensor(np.ndarray):
             self.label = tensor.label()
             self.bn = tensor.bondNum()
             self.ibn = tensor.inBondNum()
-        except:
+        except AttributeError:
             self = np.asarray(tensor).view(cls)
             try:
                 self.bn = tensor.bn
